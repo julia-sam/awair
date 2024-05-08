@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Draggable from './Draggable';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -26,6 +27,30 @@ function AirQuality() {
     const [chartData, setChartData] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [chartOrder, setChartOrder] = useState([0, 1, 2, 3]);
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dropIndex, setDropIndex] = useState(null);
+
+    const onDragStart = (index) => {
+        setDraggedIndex(index);
+    };
+
+    const onDragEnd = () => {
+        setDraggedIndex(null);
+        setDropIndex(null);
+    };
+
+    const onDragOver = (e, index) => {
+        e.preventDefault();
+        setDropIndex(index);
+    };
+
+    const onDrop = () => {
+        const newOrder = [...chartOrder];
+        newOrder.splice(dropIndex, 0, newOrder.splice(draggedIndex, 1)[0]);
+        setChartOrder(newOrder);
+    };
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -110,30 +135,32 @@ function AirQuality() {
     return (
         <div className="chart-container">
             <h1>Air Quality Data</h1>
-            <div className="chart" style={{ height: "200px" }}>
-                <Line data={{
-                    labels: chartData.labels,
-                    datasets: [chartData.datasets[0]] // CO2 dataset
-                }} options={{ maintainAspectRatio: false }} />
-            </div>
-            <div className="chart" style={{ height: "200px" }}>
-                <Line data={{
-                    labels: chartData.labels,
-                    datasets: [chartData.datasets[1]] // Temperature dataset
-                }} options={{ maintainAspectRatio: false }} />
-            </div>
-            <div className="chart" style={{ height: "200px" }}>
-                <Line data={{
-                    labels: chartData.labels,
-                    datasets: [chartData.datasets[2]] // PM2.5 dataset
-                }} options={{ maintainAspectRatio: false }} />
-            </div>
-            <div className="chart" style={{ height: "200px" }}>
-                <Line data={{
-                    labels: chartData.labels,
-                    datasets: [chartData.datasets[3]] // Humidity dataset
-                }} options={{ maintainAspectRatio: false }} />
-            </div>
+            {chartOrder.map((chartIndex, index) => (
+                <div
+                    key={chartIndex}
+                    className="chart"
+                    onDragOver={(e) => onDragOver(e, index)}
+                    onDrop={onDrop}
+                >
+                    <Draggable
+                        index={index}
+                        onDragStart={() => onDragStart(index)}
+                        onDragEnd={onDragEnd}
+                    >
+                        <Line
+                            data={{
+                                labels: chartData.labels,
+                                datasets: [chartData.datasets[chartIndex]]
+                            }}
+                            options={{
+                                maintainAspectRatio: false,
+                                responsive: true, 
+                                height: 400, 
+                            }}
+                        />
+                    </Draggable>
+                </div>
+            ))}
         </div>
     );
     

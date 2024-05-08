@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.App {
+  text-align: center;
+}
+
+.chart-container {
+  width: 70vw;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart {
+  width: 100%;
+  margin-bottom: 20px;
+}
